@@ -12,11 +12,11 @@ configs.put("engine_monitoring", true)
 let monitoring = true;
 
 let deviceName = device.brand + " " + device.model
-let content = "设备: " + deviceName + "\n\n卡通农场小助手脚本引擎已停止,请注意查看。\n\n具体问题请查看日志。"
+let content = "设备: " + deviceName + "\n\n小猪手脚本引擎已停止,请注意查看。\n\n具体问题请查看日志。"
 
 
 function pushTo(contentData) {
-    let title = "卡通农场小助手脚本已终止"; //推送标题
+    let title = "小猪手脚本已终止"; //推送标题
     let response = null;
     log(configs.get("serverPlatform").text, title, contentData)
     try {

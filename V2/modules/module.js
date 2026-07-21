@@ -6354,7 +6354,7 @@ function rawContentData2(rawContentData) {
             lines[i] += ` ${rowTotal} |`;
         }
         // 重新组合表格
-        lines = "### 卡通农场小助手仓库统计\n*数据仅供参考*\n\n" + lines.join("\n");
+        lines = "### 小猪手仓库统计\n*数据仅供参考*\n\n" + lines.join("\n");
         return lines
     } catch (error) {
         log(error);
@@ -6573,7 +6573,7 @@ function setText_inGame(text) {
 }
 
 function pushTo(contentData, title) {
-    title = title || "卡通农场小助手仓库统计"; //推送标题
+    title = title || "小猪手仓库统计"; //推送标题
     let response = null;
     log(configs.get("serverPlatform").text, title, contentData)
     try {
@@ -6627,7 +6627,7 @@ function pushTo(contentData, title) {
 function copy_shell(name, direction = "export") {
     let sourcePath1 = "/data/data/com.supercell.hayday/shared_prefs/storage.xml";
     let sourcePath2 = "/data/data/com.supercell.hayday/shared_prefs/storage_new.xml";
-    let saveDir = files.join(appExternalDir + "/卡通农场小助手存档", name);
+    let saveDir = files.join(appExternalDir + "/小猪手存档", name);
     let savePath1 = files.join(saveDir, "storage.xml");
     let savePath2 = files.join(saveDir, "storage_new.xml");
 

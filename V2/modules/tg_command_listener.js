@@ -117,7 +117,7 @@ function buildStatusMessage() {
         }
     } catch (e) { }
     let lines = [];
-    lines.push("卡通农场小助手 Telegram 指令监听在线");
+    lines.push("小猪手 Telegram 指令监听在线");
     lines.push("主界面: " + (isEngineRunning("main") ? "运行中" : "未打开"));
     lines.push("启用账号: " + doneCount);
     return lines.join("\n");

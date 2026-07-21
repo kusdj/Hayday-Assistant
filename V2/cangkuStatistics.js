@@ -145,7 +145,7 @@ function main_save() {
     function copy_shell(name, direction = "export") {
         let sourcePath1 = "/data/data/com.supercell.hayday/shared_prefs/storage.xml";
         let sourcePath2 = "/data/data/com.supercell.hayday/shared_prefs/storage_new.xml";
-        let saveDir = files.join(appExternalDir + "/卡通农场小助手存档", name);
+        let saveDir = files.join(appExternalDir + "/小猪手存档", name);
         let savePath1 = files.join(saveDir, "storage.xml");
         let savePath2 = files.join(saveDir, "storage_new.xml");
 
