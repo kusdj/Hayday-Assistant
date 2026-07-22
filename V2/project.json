@@ -30,7 +30,7 @@
   },
   "libs": [],
   "main": "main.js",
-  "name": "卡通农场小助手",
+  "name": "小猪手",
   "outputPath": null,
   "packageName": "com.ToughNobody.hayday",
   "scripts": {},
@@ -44,5 +44,5 @@
   },
   "useNodejs": false,
   "versionCode": 94,
-  "versionName": "2.3.12"
+  "versionName": "0.1"
 }
