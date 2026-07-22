@@ -1068,7 +1068,7 @@ function upgradeOperation(data) {
         }
         if (sellPlan) {
             log("商店售卖计划:" + JSON.stringify(sellPlan))
-            module.shop_sell(sellPlan, shopSellItemColor, null, 0)
+            module.shop_sell(sellPlan, shopSellItemColor,"货仓", 0)
         }
         sleep(300);
         module.find_close();
