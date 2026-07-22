@@ -1258,7 +1258,7 @@ ui.layout(
                                             {/* 主功能选择 */}
                                             <horizontal gravity="center_vertical">
                                                 <text text="选择功能：" textSize="14" w="80" marginRight="8" />
-                                                <spinner id="functionSelect" entries="刷地|种树|创新号|仅汤姆|仅鱼塘|物品售卖|倒金币|升仓"
+                                                <spinner id="functionSelect" entries="刷地|种树|创新号|仅汤姆|仅鱼塘|物品售卖|倒金币|升仓|批量加好友"
                                                     w="auto" textSize="14" h="48" bg="#FFFFFF" />
                                                 <img id="helpIcon_functionSelect" src="@drawable/ic_help_outline_black_48dp" w="18" h="18" tint="#007AFF" marginRight="8" />
                                             </horizontal>
@@ -1432,7 +1432,13 @@ ui.layout(
                                                     <checkbox id="waitShelf" checked="${configs.get('waitShelf') || false}" />
                                                 </horizontal>
                                             </vertical>
-
+{/* 批量加好友 - 仅在批量加好友时显示 */}
+<vertical id="batchAddFriendContainer" gravity="center_vertical" visibility="gone">
+    <horizontal gravity="center_vertical">
+        <text text="好友编号：" textSize="14" w="80" marginRight="8" />
+        <input id="batchAddFriend_ids" marginRight="8" w="*" h="auto" textSize="14" bg="#FFFFFF" hint="多个编号用英文逗号分隔，如 #ABC123,#DEF456" />
+    </horizontal>
+</vertical>
                                             {/* 倒金币 - 仅在倒金币时显示 */}
                                             <vertical id="coinContainer" gravity="center_vertical" visibility="gone">
                                                 <horizontal gravity="center_vertical">
@@ -3821,6 +3827,7 @@ function getConfig() {
                 y: configs.get("switchAccountY3", defaultConfig.switchAccountCoords.coord3.y)
             },
         },
+        batchAddFriend_ids: configs.get("batchAddFriend_ids", ""),
         clearFans: configs.get("clearFans", defaultConfig.clearFans),
         sell_accountList: configs.get("sell_accountList", defaultConfig.sell_accountList),
         waitShelf: configs.get("waitShelf", defaultConfig.waitShelf),
@@ -3847,6 +3854,7 @@ function saveConfig(con) {
     try {
         let defaultConfig = getDefaultConfig();
         // 将配置项分散存储到不同的键中
+        configs.put("batchAddFriend_ids", con.batchAddFriend_ids !== undefined ? con.batchAddFriend_ids : "");
         configs.put("selectedFunction", con.selectedFunction !== undefined ? con.selectedFunction : defaultConfig.selectedFunction);
         configs.put("shuadi_enabled", con.shuadi_enabled !== undefined ? con.shuadi_enabled : defaultConfig.shuadi_enabled);
         configs.put("selectedCrop", con.selectedCrop !== undefined ? con.selectedCrop : defaultConfig.selectedCrop);
@@ -4108,7 +4116,7 @@ function validateConfig(config) {
 
     // 验证功能选择
     if (!config.selectedFunction) config.selectedFunction = defaultConfig.selectedFunction;
-    const functionOptions = ["刷地", "种树", "创新号", "仅汤姆", "仅鱼塘", "物品售卖", "倒金币", "升仓"];
+    const functionOptions = ["刷地", "种树", "创新号", "仅汤姆", "仅鱼塘", "物品售卖", "倒金币", "升仓", "批量加好友"];
     if (config.selectedFunction.code < 0 || config.selectedFunction.code >= functionOptions.length) {
         config.selectedFunction.code = defaultConfig.selectedFunction.code;
     }
@@ -4920,6 +4928,8 @@ function loadConfigToUI(loadConfigFromFile = false) {
 
     ui.clearFans.setChecked(config.clearFans);
 
+    ui.batchAddFriend_ids.setText(config.batchAddFriend_ids || "");
+
     ui.waitShelf.setChecked(config.waitShelf);
 
     // 设置是否开启刷地
@@ -5460,6 +5470,16 @@ function startButton() {
             });
             break;
 
+            case 8: // 批量加好友
+    stopOtherEngines();
+    threads.start(() => {
+        launch("com.supercell.hayday");
+        sleep(100);
+        let newEngine = engines.execScriptFile("./batchAddFriend.js");
+        log("启动批量加好友引擎，ID: " + newEngine.id);
+    });
+    break;
+
         default:
             toast("未知功能", "long");
     }
@@ -5584,6 +5604,15 @@ function winStartButton() {
                 log("启动升仓引擎，ID: " + newEngine.id);
             });
             break;
+            case 8: // 批量加好友
+    stopOtherEngines();
+    threads.start(() => {
+        launch("com.supercell.hayday");
+        sleep(100);
+        let newEngine = engines.execScriptFile("./batchAddFriend.js");
+        log("启动批量加好友引擎，ID: " + newEngine.id);
+    });
+    break;
 
         default:
             toast("未知功能", "long");
@@ -5759,6 +5788,7 @@ function initUI() {
                     "sell_itemSoldContainer",
                     "coinContainer",
                     "storageUpgradeContainer"
+                    "batchAddFriendContainer"
                 ];
 
                 // 遍历所有元素，显示在 visibleElements 中的，隐藏不在其中的
@@ -5818,6 +5848,11 @@ function initUI() {
                 // 显示升仓相关控件
                 setUIVisibility(["storageUpgradeContainer"]);
             }
+            } else if (selectedFunction === "升仓") {
+    setUIVisibility(["storageUpgradeContainer"]);
+} else if (selectedFunction === "批量加好友") {   // 新增
+    setUIVisibility(["batchAddFriendContainer"]);  // 新增
+}
 
 
 
@@ -6427,7 +6462,9 @@ function initUI() {
         // 保存修改后的开关状态到配置
         configs.put("clearFans", checked);
     });
-
+ui.batchAddFriend_ids.on("text_changed", function () {
+    configs.put("batchAddFriend_ids", ui.batchAddFriend_ids.getText().toString());
+});
     // 等待货架开关状态变化监听
     ui.waitShelf.on("check", (checked) => {
         // 保存修改后的开关状态到配置
