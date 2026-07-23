@@ -5787,7 +5787,7 @@ function initUI() {
                     "honeyInfoContainer",
                     "sell_itemSoldContainer",
                     "coinContainer",
-                    "storageUpgradeContainer"
+                    "storageUpgradeContainer",
                     "batchAddFriendContainer"
                 ];
 
