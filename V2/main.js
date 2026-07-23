@@ -5847,12 +5847,13 @@ function initUI() {
             } else if (selectedFunction === "升仓") {
                 // 显示升仓相关控件
                 setUIVisibility(["storageUpgradeContainer"]);
+ } else if (selectedFunction === "升仓") {
+                // 显示升仓相关控件
+                setUIVisibility(["storageUpgradeContainer"]);
+            } else if (selectedFunction === "批量加好友") {
+                // 显示批量加好友相关控件
+                setUIVisibility(["batchAddFriendContainer"]);
             }
-            } else if (selectedFunction === "升仓") {
-    setUIVisibility(["storageUpgradeContainer"]);
-} else if (selectedFunction === "批量加好友") {   // 新增
-    setUIVisibility(["batchAddFriendContainer"]);  // 新增
-}
 
 
 
