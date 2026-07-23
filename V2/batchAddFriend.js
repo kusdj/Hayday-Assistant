@@ -18,13 +18,15 @@ try {
     console.error("创建窗口失败:", error);
 }
 
-// 读取用户填写的好友编号，逗号分隔
-let friendIdsText = configs.get("batchAddFriend_ids", "");
-if (!friendIdsText || friendIdsText.trim() === "") {
-    toastLog("未填写好友编号");
+let batchAddFriendList = configs.get("batchAddFriendList", []);
+let addFriendsList = batchAddFriendList
+    .filter(item => item.batchAddFriendDone === true)
+    .map(item => item.batchAddFriendTitle);
+
+if (!addFriendsList || addFriendsList.length === 0) {
+    toastLog("未填写好友标签");
     exit();
 }
-let addFriendsList = friendIdsText.split(",").map(s => s.trim()).filter(s => s.length > 0);
 
 sleep(100);
 module.checkmenu();

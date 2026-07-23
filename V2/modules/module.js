@@ -6470,7 +6470,7 @@ function convertToTable(data) {
     const seconds = Math.floor((runTime % (1000 * 60)) / 1000);
 
     // 在表格前面添加标题、说明和运行时间
-    return `### 卡通农场小助手仓库统计
+    return `### 小猪手仓库统计
 *数据仅供参考*
 *小助手已运行 ${hours}小时${minutes}分钟${seconds}秒*
 
@@ -6485,7 +6485,7 @@ function convertToText(data) {
     const minutes = Math.floor((runTime % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((runTime % (1000 * 60)) / 1000);
 
-    let text = "### 卡通农场小助手仓库统计\n";
+    let text = "### 小猪手仓库统计\n";
     text += "*数据仅供参考*\n";
     text += `*小助手已运行 ${hours}小时${minutes}分钟${seconds}秒*\n\n`;
 

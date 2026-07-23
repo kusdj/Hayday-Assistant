@@ -58,6 +58,7 @@ let isFirstLoad_cropSelect = true;
 let AccountList = [];
 let SaveAccountList = [];
 let AddFriendsList = [];
+let BatchAddFriendList= [];
 let CangkuSoldList = [
     { title: "炸药", done: false, priority: 0, id: 1 },
     { title: "炸药桶", done: false, priority: 0, id: 2 },
@@ -1433,12 +1434,27 @@ ui.layout(
                                                 </horizontal>
                                             </vertical>
 {/* 批量加好友 - 仅在批量加好友时显示 */}
-<vertical id="batchAddFriendContainer" gravity="center_vertical" visibility="gone">
-    <horizontal gravity="center_vertical">
-        <text text="好友编号：" textSize="14" w="80" marginRight="8" />
-        <input id="batchAddFriend_ids" marginRight="8" w="*" h="auto" textSize="14" bg="#FFFFFF" hint="多个编号用英文逗号分隔，如 #ABC123,#DEF456" />
-    </horizontal>
-</vertical>
+<card id="batchAddFriendCard" w="*" h="auto" marginBottom="12" cardCornerRadius="8" cardElevation="2" visibility="gone">
+    <vertical padding="16">
+        <vertical id="batchAddFriendListDisplay" marginTop="8">
+            <text text="好友标签：填写好友标签，不需要加#，多个好友请逐一添加" textSize="14" textStyle="bold" />
+        </vertical>
+        <list id="batchAddFriendList" h="auto">
+            <card w="*" h="40" margin="0 5" cardCornerRadius="5dp"
+                cardElevation="1dp" foreground="?selectableItemBackground">
+                <horizontal gravity="center_vertical">
+                    <frame h="*" w="10" bg="#f27272" />
+                    <vertical padding="10 8" h="auto" w="0" layout_weight="1">
+                        <text id="batchAddFriendTitle" text="{{this.batchAddFriendTitle}}" textColor="#333333" textSize="16sp" maxLines="1" />
+                    </vertical>
+                    <checkbox id="batchAddFriendDone" marginLeft="4" marginRight="50" checked="{{this.batchAddFriendDone}}" />
+                </horizontal>
+            </card>
+        </list>
+    </vertical>
+    <fab id="batchAddFriendBtn" w="50" h="50" src="@drawable/ic_add_black_48dp" scaleType="fitCenter"
+        margin="8" layout_gravity="bottom|right" tint="black" backgroundTint="#7fffd4" />
+</card>
                                             {/* 倒金币 - 仅在倒金币时显示 */}
                                             <vertical id="coinContainer" gravity="center_vertical" visibility="gone">
                                                 <horizontal gravity="center_vertical">
@@ -1941,16 +1957,7 @@ ui.layout(
                         </scroll>
                     </frame>
                 </viewpager>
-            </vertical >
-            <vertical layout_gravity="left" bg="#ffffff" w="280">
-                <img w="280" h="200" scaleType="fitXY" src="file://{{currentPath}}/res/images/sidebar.png" />
-                <list id="menu">
-                    <horizontal bg="?selectableItemBackground" w="*">
-                        <img id="menuIcon" w="50" h="50" padding="16" src="{{this.icon}}" tint="{{color}}" />
-                        <text textColor="black" textSize="15sp" text="{{this.title}}" layout_gravity="center" />
-                    </horizontal>
-                </list>
-            </vertical>
+           </vertical >
         </drawer >
 
 
@@ -2126,10 +2133,11 @@ ui.log_icon.on("click", () => {
 
 //创建选项菜单(右上角)
 ui.emitter.on("create_options_menu", menu => {
-    menu.add("开始");
-    menu.add("关于");
-    menu.add("日志");
-    menu.add("调试");
+menu.add("开始");
+menu.add("关于");
+menu.add("日志");
+menu.add("调试");
+menu.add("退出");
 });
 //监听选项菜单点击
 ui.emitter.on("options_item_selected", (e, item) => {
@@ -2152,6 +2160,9 @@ ui.emitter.on("options_item_selected", (e, item) => {
             });
             // log(typeof config.harvestX)
             break;
+             case "退出":              // 新增
+            stopOtherEngines(true);  // 新增
+            break;                 // 新增
     }
     e.consumed = true;
 });
@@ -3032,7 +3043,7 @@ ui.telegramCmdStopBtn.setOnClickListener(() => {
 // 更新按钮颜色函数
 function updateButtonColors() {
     // 更新菜单图标颜色
-    ui.menu.adapter.notifyDataSetChanged();
+    
     // 更新主题颜色文本颜色
     ui.themeColor.setTextColor(android.graphics.Color.parseColor(color));
     // 更新状态栏颜色
@@ -3040,130 +3051,6 @@ function updateButtonColors() {
     // 更新应用栏背景颜色
     ui.appbar.setBackgroundColor(android.graphics.Color.parseColor(color));
     ui.sell_appbar.setBackgroundColor(android.graphics.Color.parseColor(color));
-}
-//
-
-
-//让工具栏左上角可以打开侧拉菜单
-ui.toolbar.setupWithDrawer(ui.drawer);
-
-ui.menu.setDataSource([{
-    title: "赏",
-    icon: "@drawable/ic_thumb_up_black_48dp"
-},
-{
-    title: "群",
-    icon: "@drawable/ic_group_black_48dp"
-},
-{
-    title: "谢",
-    icon: "@drawable/ic_favorite_black_48dp"
-},
-{
-    title: "退出",
-    icon: "@drawable/ic_exit_to_app_black_48dp"
-}
-]);
-
-// 绑定菜单项，用于更新图标颜色
-ui.menu.on('item_bind', function (itemView, itemHolder) {
-    // 更新菜单图标颜色
-    itemView.menuIcon.attr("tint", color);
-});
-
-ui.menu.on("item_click", item => {
-    switch (item.title) {
-        case "赏":
-            showDonateDialog()
-            break;
-        case "群":
-            dialogs.build({
-                title: "👥 加入交流群 👥",
-                customView: ui.inflate(
-                    <vertical>
-                        <text text="想要加入我们的QQ交流群吗？" />
-                        <text text="这里有更多资源和帮助！" />
-                        <text id="qqGroupLink" text="群号:933276299" textColor="#0000FF" textStyle="bold" />
-                    </vertical>
-                ),
-                positive: "立即加入 🚀",
-                negative: "复制群号",
-                neutral: "再想想"
-            }).on("positive", () => {
-                app.openUrl("https://qm.qq.com/q/yfhVwFL3Zm");
-            }).on("negative", () => {
-                setClip("933276299");
-            }).on("neutral", () => {
-                // toast("没关系，随时欢迎加入！😊");
-            }).show();
-
-            break;
-        case "谢":
-            dialogs.build({
-                title: "致谢🙏",
-                content: ""
-                    + "\n",
-                positive: "确定",
-                negative: "",
-                neutral: ""
-            }).on("positive", () => {
-
-            }).on("negative", () => {
-
-            }).on("neutral", () => {
-
-            }).show();
-            break;
-        case "退出":
-            stopOtherEngines(true);
-            break;
-
-    }
-})
-
-function showDonateDialog() {
-    dialogs.build({
-        title: "🌟投喂作者🌟 ",
-        content: "真的吗真的吗真的吗\n" +
-            "(ฅ´ω`ฅ)",
-        positive: "真的😍",
-        neutral: "逗你玩😝",
-    }).on("positive", () => {
-        toast("您的支持是我最大的动力！❤️")
-        // 创建悬浮窗显示二维码
-        let floatWindow = floaty.window(
-            <vertical padding="10">
-                <card w="*" h="*" cardCornerRadius="32" cardElevation="2" gravity="center">
-                    <vertical padding="8" bg="#afe2a7">
-                        <text text="感谢您的支持！" textSize="18" textStyle="bold" textColor="#333333" gravity="center" marginBottom="12" />
-                        <img src="file://{{currentPath}}/res/images/qrcode_wechat_reward.jpg" w="260" h="260" scaleType="fitXY" />
-                        <horizontal gravity="center" marginTop="12">
-                            <button id="closeBtn" text="关闭" style="Widget.AppCompat.Button.Colored" textColor="#000000" w="120" marginRight="10" />
-                            <button id="loveBtn" text="爱发电链接🔗" style="Widget.AppCompat.Button.Colored" textColor="#000000" w="120" marginRight="10" />
-                        </horizontal>
-                    </vertical>
-                </card>
-            </vertical>
-        );
-
-        // 设置悬浮窗位置，更靠左上方
-        floatWindow.setPosition(device.width / 10, device.height / 5);
-
-        // 爱发电按钮点击事件
-        floatWindow.loveBtn.on("click", () => {
-            app.openUrl("https://afdian.com/a/ToughNobody");
-            floatWindow.close();
-        });
-
-        // 关闭按钮点击事件
-        floatWindow.closeBtn.on("click", () => {
-            floatWindow.close();
-        });
-
-
-    }).on("neutral", () => {
-        toast("我哭死！😭");
-    }).show();
 }
 
 // 显示日志对话框函数
@@ -3601,6 +3488,70 @@ ui['addFriend'].on('click', () => {
             console.log("用户取消输入或发生错误:", error);
         });
 });
+// batchAddFriendList 的复选框勾选事件
+ui['batchAddFriendList'].on('item_bind', function (itemView, itemHolder) {
+    itemView.batchAddFriendDone.on('check', function (checked) {
+        let item = itemHolder.item;
+        item.batchAddFriendDone = checked;
+        itemView.batchAddFriendTitle.invalidate();
+
+        BatchAddFriendList = ui['batchAddFriendList'].getDataSource();
+        configs.put("batchAddFriendList", BatchAddFriendList);
+    });
+});
+
+// 点击列表项修改内容
+ui['batchAddFriendList'].on('item_click', function (item, i, itemView) {
+    dialogs.rawInput('修改好友标签', item.batchAddFriendTitle)
+        .then((newTitle) => {
+            if (newTitle && newTitle.trim() !== '') {
+                item.batchAddFriendTitle = newTitle.trim();
+                ui['batchAddFriendList'].adapter.notifyDataSetChanged();
+
+                BatchAddFriendList = ui['batchAddFriendList'].getDataSource();
+                configs.put("batchAddFriendList", BatchAddFriendList);
+            }
+        })
+        .catch((error) => {
+            console.log("用户取消输入或发生错误:", error);
+        });
+});
+
+// 长按删除
+ui['batchAddFriendList'].on('item_long_click', function (e, item, i) {
+    confirm(`确定要删除 "${item.batchAddFriendTitle}" 吗?`)
+        .then(ok => {
+            if (ok) {
+                BatchAddFriendList.splice(i, 1);
+                BatchAddFriendList = ui['batchAddFriendList'].getDataSource();
+                configs.put("batchAddFriendList", BatchAddFriendList);
+            }
+        })
+        .catch((error) => {
+            console.log("用户取消操作或发生错误:", error);
+        });
+    e.consumed = true;
+});
+
+// 添加新好友标签
+ui['batchAddFriendBtn'].on('click', () => {
+    dialogs.rawInput('请输入好友标签（不需要加#）')
+        .then((title) => {
+            if (title && title.trim() !== '') {
+                BatchAddFriendList.push({
+                    batchAddFriendTitle: title.trim(),
+                    batchAddFriendDone: true
+                });
+                ui['batchAddFriendList'].adapter.notifyDataSetChanged();
+
+                BatchAddFriendList = ui['batchAddFriendList'].getDataSource();
+                configs.put("batchAddFriendList", BatchAddFriendList);
+            }
+        })
+        .catch((error) => {
+            console.log("用户取消输入或发生错误:", error);
+        });
+});
 
 // 添加新账号
 ui['addAccount'].on('click', () => {
@@ -3827,7 +3778,7 @@ function getConfig() {
                 y: configs.get("switchAccountY3", defaultConfig.switchAccountCoords.coord3.y)
             },
         },
-        batchAddFriend_ids: configs.get("batchAddFriend_ids", ""),
+        batchAddFriendList: configs.get("batchAddFriendList", []),
         clearFans: configs.get("clearFans", defaultConfig.clearFans),
         sell_accountList: configs.get("sell_accountList", defaultConfig.sell_accountList),
         waitShelf: configs.get("waitShelf", defaultConfig.waitShelf),
@@ -3854,7 +3805,7 @@ function saveConfig(con) {
     try {
         let defaultConfig = getDefaultConfig();
         // 将配置项分散存储到不同的键中
-        configs.put("batchAddFriend_ids", con.batchAddFriend_ids !== undefined ? con.batchAddFriend_ids : "");
+        configs.put("batchAddFriendList", con.batchAddFriendList !== undefined ? con.batchAddFriendList : []);
         configs.put("selectedFunction", con.selectedFunction !== undefined ? con.selectedFunction : defaultConfig.selectedFunction);
         configs.put("shuadi_enabled", con.shuadi_enabled !== undefined ? con.shuadi_enabled : defaultConfig.shuadi_enabled);
         configs.put("selectedCrop", con.selectedCrop !== undefined ? con.selectedCrop : defaultConfig.selectedCrop);
@@ -4749,6 +4700,7 @@ function loadConfigToUI(loadConfigFromFile = false) {
 
     AddFriendsList = config.addFriendsList
     ui['addFriendsList'].setDataSource(AddFriendsList);
+    BatchAddFriendList = config.batchAddFriendList
 
     ui.sell_accountList.setDataSource(sell_accountList);
     generateContentBlocks(sell_accountList)
@@ -4928,7 +4880,7 @@ function loadConfigToUI(loadConfigFromFile = false) {
 
     ui.clearFans.setChecked(config.clearFans);
 
-    ui.batchAddFriend_ids.setText(config.batchAddFriend_ids || "");
+ui['batchAddFriendList'].setDataSource(config.batchAddFriendList || []);
 
     ui.waitShelf.setChecked(config.waitShelf);
 
@@ -6463,9 +6415,13 @@ function initUI() {
         // 保存修改后的开关状态到配置
         configs.put("clearFans", checked);
     });
-ui.batchAddFriend_ids.on("text_changed", function () {
-    configs.put("batchAddFriend_ids", ui.batchAddFriend_ids.getText().toString());
-});
+ui.batchAddFriend_ids.addTextChangedListener(new android.text.TextWatcher({
+    beforeTextChanged: function (s, start, count, after) { },
+    onTextChanged: function (s, start, before, count) {
+        configs.put("batchAddFriend_ids", s.toString());
+    },
+    afterTextChanged: function (s) { }
+}));
     // 等待货架开关状态变化监听
     ui.waitShelf.on("check", (checked) => {
         // 保存修改后的开关状态到配置
